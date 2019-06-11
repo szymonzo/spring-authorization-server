@@ -16,7 +16,7 @@ public class AuthorizationApplication {
 
   @Bean
   public KeyPair keyPair() throws NoSuchAlgorithmException {
-    KeyPairGenerator rsa = KeyPairGenerator.getInstance("RSA");
+    var rsa = KeyPairGenerator.getInstance("RSA");
     return rsa.generateKeyPair();
   }
 

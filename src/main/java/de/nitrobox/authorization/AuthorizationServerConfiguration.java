@@ -43,7 +43,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
   @Override
   public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
-    TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+    var tokenEnhancerChain = new TokenEnhancerChain();
     tokenEnhancerChain.setTokenEnhancers(Arrays.asList(tokenEnhancer(), accessTokenConverter()));
     endpoints.tokenStore(tokenStore())
         .tokenEnhancer(tokenEnhancerChain)
@@ -70,7 +70,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
   @Bean
   JwtAccessTokenConverter accessTokenConverter() {
-    JwtAccessTokenConverter jwtTokenConverter = new JwtAccessTokenConverter();
+    var jwtTokenConverter = new JwtAccessTokenConverter();
     jwtTokenConverter.setKeyPair(this.keyPair);
     return jwtTokenConverter;
   }
@@ -83,9 +83,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
   @Bean
   @Primary
   public DefaultTokenServices tokenServices() {
-    TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+    var tokenEnhancerChain = new TokenEnhancerChain();
     tokenEnhancerChain.setTokenEnhancers(Arrays.asList(tokenEnhancer(), accessTokenConverter()));
-    DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+    var defaultTokenServices = new DefaultTokenServices();
     defaultTokenServices.setTokenStore(tokenStore());
     defaultTokenServices.setTokenEnhancer(tokenEnhancerChain);
     return defaultTokenServices;

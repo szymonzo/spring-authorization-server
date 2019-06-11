@@ -1,7 +1,6 @@
 package de.nitrobox.authorization;
 
 import java.util.HashMap;
-import java.util.Map;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -12,7 +11,7 @@ public class CustomTokenEnhancer implements TokenEnhancer {
   @Override
   public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
       OAuth2Authentication authentication) {
-    Map<String, Object> additionalInfo = new HashMap<>();
+    var additionalInfo = new HashMap<String, Object>();
     additionalInfo.put("tenantId", "43");
     ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(
         additionalInfo);
