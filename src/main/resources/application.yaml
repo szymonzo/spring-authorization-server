@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    jdbc-url: jdbc:mysql://localhost:3309/oauth2
+    username: root
+    password: password
