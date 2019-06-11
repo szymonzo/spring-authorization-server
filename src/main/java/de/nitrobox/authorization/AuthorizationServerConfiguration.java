@@ -9,7 +9,6 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,7 +16,7 @@ import org.springframework.security.oauth2.config.annotation.configurers.ClientD
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerEndpointsConfiguration;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
@@ -28,11 +27,15 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 @Configuration
 public class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
 
-  @Autowired
   private AuthenticationManager authenticationManager;
 
-  @Autowired
   private KeyPair keyPair;
+
+  public AuthorizationServerConfiguration(
+      AuthenticationManager authenticationManager, KeyPair keyPair) {
+    this.authenticationManager = authenticationManager;
+    this.keyPair = keyPair;
+  }
 
   @Override
   public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -44,12 +47,12 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
   @Override
   public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
     var tokenEnhancerChain = new TokenEnhancerChain();
-    tokenEnhancerChain.setTokenEnhancers(Arrays.asList(tokenEnhancer(), accessTokenConverter()));
+    tokenEnhancerChain.setTokenEnhancers(
+        Arrays.asList(tokenEnhancer(endpoints.getClientDetailsService()), accessTokenConverter()));
     endpoints.tokenStore(tokenStore())
         .tokenEnhancer(tokenEnhancerChain)
         .approvalStoreDisabled()
-        .authenticationManager(authenticationManager)
-        .tokenServices(tokenServices());
+        .authenticationManager(authenticationManager);
   }
 
   @Bean
@@ -75,19 +78,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     return jwtTokenConverter;
   }
 
-  @Bean
-  public TokenEnhancer tokenEnhancer() {
-    return new CustomTokenEnhancer();
-  }
-
-  @Bean
-  @Primary
-  public DefaultTokenServices tokenServices() {
-    var tokenEnhancerChain = new TokenEnhancerChain();
-    tokenEnhancerChain.setTokenEnhancers(Arrays.asList(tokenEnhancer(), accessTokenConverter()));
-    var defaultTokenServices = new DefaultTokenServices();
-    defaultTokenServices.setTokenStore(tokenStore());
-    defaultTokenServices.setTokenEnhancer(tokenEnhancerChain);
-    return defaultTokenServices;
+  private TokenEnhancer tokenEnhancer(ClientDetailsService clientDetailsService) {
+    return new TenantAwareJwtAccessTokenEnhancer(clientDetailsService);
   }
 }

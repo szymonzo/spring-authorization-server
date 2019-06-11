@@ -19,5 +19,4 @@ public class AuthorizationApplication {
     var rsa = KeyPairGenerator.getInstance("RSA");
     return rsa.generateKeyPair();
   }
-
 }
