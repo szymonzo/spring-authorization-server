@@ -3,7 +3,6 @@ package de.nitrobox.authorization;
 import java.security.KeyPair;
 import java.util.Arrays;
 import javax.sql.DataSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -48,7 +47,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
   public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
     var tokenEnhancerChain = new TokenEnhancerChain();
     tokenEnhancerChain.setTokenEnhancers(
-        Arrays.asList(tokenEnhancer(endpoints.getClientDetailsService()), accessTokenConverter()));
+        Arrays.asList(tokenEnhancer(endpoints.getClientDetailsService()),
+            issuerAwareJwtAccessTokenEnhancer(), accessTokenConverter())
+    );
     endpoints.tokenStore(tokenStore())
         .tokenEnhancer(tokenEnhancerChain)
         .approvalStoreDisabled()
@@ -76,6 +77,11 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     var jwtTokenConverter = new JwtAccessTokenConverter();
     jwtTokenConverter.setKeyPair(this.keyPair);
     return jwtTokenConverter;
+  }
+
+  @Bean
+  IssuerAwareJwtAccessTokenEnhancer issuerAwareJwtAccessTokenEnhancer() {
+    return new IssuerAwareJwtAccessTokenEnhancer();
   }
 
   private TokenEnhancer tokenEnhancer(ClientDetailsService clientDetailsService) {
