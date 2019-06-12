@@ -1,5 +1,12 @@
 spring:
   datasource:
-    jdbc-url: jdbc:mysql://localhost:3309/oauth2
-    username: root
-    password: password
+    jdbc-url: ${JDBC_URL:jdbc:mysql://localhost:3309/oauth2}
+    username: ${JDBC_USERNAME:root}
+    password: ${JDBC_PASSWORD:password}
+security:
+  oauth2:
+    authorization:
+      jwt:
+        key-alias: ${JWT_KEY_ALIAS:jwt}
+        key-password: ${JWT_KEY_PASSWORD:password}
+        key-store: ${JWT_KEY_STORE:jwt.jks}

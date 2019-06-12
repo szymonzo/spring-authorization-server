@@ -6,3 +6,4 @@ docker run --name authorization -e MYSQL_ROOT_PASSWORD=password -e MYSQL_USER=us
 5. run server
 6. execute :curl test:test@localhost:8080/oauth/token -dgrant_type=client_credentials -dscope=any
 
+keytool -genkeypair -alias jwt -keyalg RSA -keypass password -keystore jwt.jks -storepass password

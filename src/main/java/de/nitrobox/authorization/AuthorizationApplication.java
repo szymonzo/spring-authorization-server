@@ -1,11 +1,13 @@
 package de.nitrobox.authorization;
 
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.oauth2.authserver.AuthorizationServerProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
 @SpringBootApplication
 public class AuthorizationApplication {
@@ -15,8 +17,17 @@ public class AuthorizationApplication {
   }
 
   @Bean
-  public KeyPair keyPair() throws NoSuchAlgorithmException {
-    var rsa = KeyPairGenerator.getInstance("RSA");
-    return rsa.generateKeyPair();
+  @ConfigurationProperties(prefix = "security.oauth2.authorization")
+  AuthorizationServerProperties authorizationServerProperties(){
+    return new AuthorizationServerProperties();
+  }
+
+  @Bean
+  public KeyPair keyPair(AuthorizationServerProperties authorizationServerProperties) {
+    final var jwt = authorizationServerProperties.getJwt();
+    final var keyStoreKeyFactory =
+        new KeyStoreKeyFactory(new ClassPathResource(jwt.getKeyStore()),
+            jwt.getKeyPassword().toCharArray());
+    return keyStoreKeyFactory.getKeyPair(jwt.getKeyAlias());
   }
 }
